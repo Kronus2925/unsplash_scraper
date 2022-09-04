@@ -34,7 +34,7 @@ def getimg(userchoice_foldername, url):
     global cnt
     page = get(url)
     soup = BeautifulSoup(page.content, 'lxml')
-    img = soup.find_all('img', alt=True)
+    img = soup.find_all('img',{'class' : 'YVj9w'}, alt=True)
     cnt = 0
     return img,cnt
 
