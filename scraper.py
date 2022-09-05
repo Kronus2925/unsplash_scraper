@@ -1,57 +1,47 @@
 from requests import get
 from bs4 import BeautifulSoup
 import os
-import shutil
-import sys
 
-userchoice_photo = str(input("What are you searching for ?\n"))
-while True:
-    try:
-        userchoice_count = int(input("How many photos you whish to download?\n"))
-    except:
-        print("You must provide a number !\n")
-    else:
-        if isinstance(userchoice_count, int) == True:
+def main_logic():
+
+    userchoice_photo = input("What are you searching for ?\n")
+    userchoice_foldername = userchoice_photo
+
+    while True:
+        try:
+            userchoice_count = int(input("How many photos you whish to download?\n"))
             break
-        else:
-            continue
-userchoice_foldername = userchoice_photo
-
-url = f'https://unsplash.com/s/photos/{userchoice_photo}'
-
-
-def getimg(userchoice_foldername, url):
+        except ValueError:
+            print("You must provide a number !\n")
     try:
         os.mkdir(os.path.join(os.getcwd(), userchoice_foldername))
+        os.chdir(os.path.join(os.getcwd(), userchoice_foldername))
     except:
-        shutil.rmtree(os.path.join(os.getcwd(), userchoice_foldername))
-    try:
-        os.mkdir(os.path.join(os.getcwd(), userchoice_foldername))
-    except:
-        pass
-    os.chdir(os.path.join(os.getcwd(), userchoice_foldername))
-    global img
-    global cnt
+        print('Failed to create directory, provided path already exists\n')
+        os.chdir(os.path.join(os.getcwd(), userchoice_foldername))
+
+    url = f'https://unsplash.com/s/photos/{userchoice_photo}'
+
+    imgs = html_acces(url)
+    image_download(imgs, userchoice_count)
+
+def html_acces(url):
+    
     page = get(url)
     soup = BeautifulSoup(page.content, 'lxml')
-    img = soup.find_all('img',{'class' : 'YVj9w'}, alt=True)
-    cnt = 0
-    return img,cnt
+    imgs = soup.find_all('img',{'class' : 'YVj9w'}, alt=True)
+    return imgs
 
-def imagescrape(img, cnt, userchoice_count):
-    try:  
-        for image in img:
-            if  cnt < userchoice_count:
-                cnt += 1
-                lnk = image['src']
-                name = image['alt']
-                with open(name.replace(' ', '-').replace('/', '') + '.jpg', 'wb') as f:
-                    im = get(lnk)
-                    f.write(im.content)
-                    print('Saving: ' + name + '.jpg')
-    except:
-        print("There is nothing to save, try again")          
-        os.execl(sys.executable, sys.executable, *sys.argv)
+def image_download(imgs, userchoice_count):
+
+    for idx, image in enumerate(imgs):
+
+        if  idx < userchoice_count:
+            lnk = image['src']
+            name = image['alt']
+            with open(name.replace(' ', '-').replace('/', '') + '.jpg', 'wb') as f:
+                im = get(lnk)
+                f.write(im.content)
+                print('Saving: ' + name + '.jpg')
         
-getimg(userchoice_foldername, url)
-imagescrape(img, cnt, userchoice_count)
+main_logic()
