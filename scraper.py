@@ -1,4 +1,3 @@
-from lib2to3.pgen2 import driver
 from bs4 import BeautifulSoup
 from requests import get
 import os
@@ -27,6 +26,7 @@ def main_logic():
         os.chdir(os.path.join(os.getcwd(), userchoice_foldername))
 
     url = f'https://unsplash.com/s/photos/{userchoice_photo}'
+    
     driver_setup(url)
     driver = driver_setup(url)
     button_click(driver)
